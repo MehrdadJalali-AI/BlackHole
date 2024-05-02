@@ -1,6 +1,6 @@
 # Black Hole Strategy
 
-![Black Hole Strategy](./BL.jpg) <!-- Ensure BL.jpg is uploaded and available at this path -->
+![Black Hole Strategy](./BH.jpg) <!-- Ensure BL.jpg is uploaded and available at this path -->
 
 ## Overview
 
