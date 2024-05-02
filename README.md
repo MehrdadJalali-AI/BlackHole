@@ -1,4 +1,4 @@
-# Black Hole Strategy
+# Black Hole Strategy in Metal-Organic Framework (MOF) graph
 
 ![Black Hole Strategy](./BH.jpg) <!-- Ensure BL.jpg is uploaded and available at this path -->
 
