@@ -1,5 +1,11 @@
 # Black Hole Strategy in Metal-Organic Framework (MOF) Graph
 
+<p align="center">
+    <img src="BH.jpg" alt="Black Hole Strategy in Metal-Organic Framework (MOF) Graph based on MOFGalaxyNet" width="600">
+</p>
+
+
+
 ![Black Hole Strategy](./BH.jpg) <!-- Ensure BL.jpg is uploaded and available at this path -->
 
 ## Overview
