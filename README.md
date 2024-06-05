@@ -8,7 +8,7 @@
 
 ## Overview
 
-The Black Hole Strategy is part of the MOFGalaxyNet initiative, aimed at optimizing the characterization of Metal-Organic Frameworks (MOFs) using advanced computational methods. This strategy employs graph sparsification techniques and inverse link prediction to reduce the complexity of computational models while preserving essential structural features. The methods applied on MOFGalaxyNet as our previous project.
+The Black Hole Strategy is applied to the MOFGalaxyNet, which is a graph of MOF structures we previously developed. This strategy aims to optimize the characterization of Metal-Organic Frameworks (MOFs) using advanced computational methods, including graph sparsification techniques and inverse link prediction. These methods help reduce the complexity of computational models while preserving essential structural features of the MOF graph.
 
 ## Features
 
