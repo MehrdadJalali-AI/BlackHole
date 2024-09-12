@@ -18,7 +18,7 @@ Below is an example of the **Black Hole Strategy** in action, showing the graph 
 The strategy works as follows:
 
 1. **Community Detection**: First, the graph is divided into communities using the **Girvan-Newman algorithm**.
-2. **Centrality Calculations**: For each node in each community, the **gravity** is calculated based on its normalized degree centrality, betweenness centrality, and edge weight sum.
+2. **Gravity Calculation**: For each community, the gravity is computed using normalized **degree**, **betweenness centrality**, and the **weights of connected edges** for each node.
 3. **Node Removal**: Nodes with the lowest gravity are removed based on a configurable **threshold**, representing the percentage of nodes to be removed in each community.
 4. **Results**: The remaining nodes are analyzed, and the reduced graph is visualized.
 
