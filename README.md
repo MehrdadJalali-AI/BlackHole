@@ -13,7 +13,8 @@ This repository contains a Python-based implementation of the **Black Hole Strat
 ## Demo!
 Below is an example of the **Black Hole Strategy** in action, showing the graph as nodes are highlighted based on their gravity:
 
-![Black Hole Strategy in Action](Animated_BH_Shorter.gif)
+![Black Hole Strategy in Action](sandbox:/mnt/data/animated_graph_resized_300x300.gif)
+
 
 The strategy works as follows:
 
