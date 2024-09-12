@@ -10,6 +10,11 @@
 ## Overview
 This repository contains a Python-based implementation of the **Black Hole Strategy** applied to community detection in networks. The main goal is to identify and remove nodes from a graph based on a gravity metric, which takes into account degree centrality, betweenness centrality, and edge weights. The method allows for the removal of a percentage of nodes with the lowest gravity in each community based on a specified threshold.
 
+## Animated Example
+Below is an example of the **Black Hole Strategy** in action, showing the graph as nodes are removed based on their gravity:
+
+![Black Hole Strategy in Action](BH_Animated.gif)
+
 The strategy works as follows:
 
 1. **Community Detection**: First, the graph is divided into communities using the **Girvan-Newman algorithm**.
