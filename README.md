@@ -5,30 +5,31 @@
 </p>
 
 
+# Black Hole Strategy for Node Removal
 
 ## Overview
+This repository contains a Python-based implementation of the **Black Hole Strategy** applied to community detection in networks. The main goal is to identify and remove nodes from a graph based on a gravity metric, which takes into account degree centrality, betweenness centrality, and edge weights. The method allows for the removal of a percentage of nodes with the lowest gravity in each community based on a specified threshold.
 
-The Black Hole Strategy is applied to the MOFGalaxyNet, which is a graph of MOF structures we previously developed. This strategy aims to optimize the characterization of Metal-Organic Frameworks (MOFs) using advanced computational methods, including graph sparsification techniques and inverse link prediction. These methods help reduce the complexity of computational models while preserving essential structural features of the MOF graph.
+The strategy works as follows:
 
-## Features
+1. **Community Detection**: First, the graph is divided into communities using the **Girvan-Newman algorithm**.
+2. **Centrality Calculations**: For each node in each community, the **gravity** is calculated based on its normalized degree centrality, betweenness centrality, and edge weight sum.
+3. **Node Removal**: Nodes with the lowest gravity are removed based on a configurable **threshold**, representing the percentage of nodes to be removed in each community.
+4. **Results**: The remaining nodes are analyzed, and the reduced graph is visualized.
 
-- **Graph Sparsification:** Simplifies the initial network by reducing non-essential nodes and links, enhancing computational efficiency.
-- **Inverse Link Prediction (ILP):** Uses Graph Convolutional Networks (GCNs) to evaluate the redundancy of connections, identifying which can be removed without significant loss of network integrity.
-- **Preservation of Network Integrity:** Ensures the essential characteristics of MOFs are maintained, facilitating accurate predictions of properties like pore limiting diameter (PLD).
+## How it Works
 
-## Results
+1. **Loading Data**: The edge list of the graph and node summary data are loaded.
+2. **Community Detection**: Communities are detected using the **Girvan-Newman algorithm**, and each node is assigned a community ID.
+3. **Centrality Calculation**: For each community, the gravity is computed using normalized centrality measures.
+4. **Black Hole Strategy**: A user-defined percentage of nodes with the lowest gravity is removed from each community.
+5. **Visualization**: The graph is visualized before and after node removal, with each community in a different color.
 
-- **Computational Efficiency:** Reduces computational load by up to 90%, improving manageability of the network.
-- **High Accuracy:** Maintains prediction accuracy, confirmed through various case studies, validating the utility of the sparsification process in materials science.
 
 ## MOFGalaxyNet and Black Hole Strategy
 - **MOFGalaxyNet:**
     <p>To access the related code for MOFGalaxyNet, visit the following GitHub repository:</p>
     <a href="https://github.com/MehrdadJalali-KIT/MOFGalaxyNet">MOFGalaxyNet GitHub Repository</a>
- - **Black Hole Strategy:**
-
-    <p>If you want to access the strategy we have used for Black Hole Strategy, use the following link:</p>
-    <a href="https://github.com/MehrdadJalali-KIT/InverseLinkPredcition">Inverse Link Prediction GitHub Repository</a>
 
 
 
