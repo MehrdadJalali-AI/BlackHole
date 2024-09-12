@@ -13,8 +13,10 @@ This repository contains a Python-based implementation of the **Black Hole Strat
 ## Demo!
 Below is an example of the **Black Hole Strategy** in action, showing the graph as nodes are highlighted based on their gravity:
 
-![Black Hole Strategy in Action](Animated_BH_Shorter.gif){:width="300" height="300"}
 
+<p align="center">
+    <img src="Animated_BH_Shorter.gif" alt="Black Hole Strategy in Metal-Organic Framework (MOF) Graph based on MOFGalaxyNet" width="600">
+</p>
 
 
 The strategy works as follows:
