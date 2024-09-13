@@ -19,7 +19,7 @@ Below is an example of the **Black Hole Strategy** in action, showing the graph 
 </p>
 
 
-The strategy works as follows:
+## How it Works
 
 1. **Community Detection**: First, the graph is divided into communities using the **Girvan-Newman algorithm**.
 2. **Gravity Calculation**: For each community, the gravity score for each node is computed using normalized degree centrality, betweenness centrality, and edge weights.
@@ -27,13 +27,6 @@ The strategy works as follows:
 4. **Node Removal**: Nodes with the lowest gravity are removed based on a configurable **threshold**, representing the percentage of nodes to be removed in each community.
 5. **Results**: The remaining nodes are analyzed, and the reduced graph is visualized.
 
-## How it Works
-
-1. **Loading Data**: The edge list of the graph and node summary data are loaded.
-2. **Community Detection**: Communities are detected using the **Girvan-Newman algorithm**, and each node is assigned a community ID.
-3. **Centrality Calculation**: For each community, the gravity is computed using normalized centrality measures.
-4. **Black Hole Strategy**: A user-defined percentage of nodes with the lowest gravity is removed from each community.
-5. **Visualization**: The graph is visualized before and after node removal, with each community in a different color.
 
 
 ## MOFGalaxyNet and Black Hole Strategy
