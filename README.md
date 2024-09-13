@@ -15,7 +15,7 @@ Below is an example of the **Black Hole Strategy** in action, showing the graph 
 
 
 <p align="center">
-    <img src="Animated_BH_Shorter.gif" alt="Black Hole Strategy in Metal-Organic Framework (MOF) Graph based on MOFGalaxyNet" width="600">
+    <img src="Animated_BH_txt_Shorter.gif" alt="Black Hole Strategy in Metal-Organic Framework (MOF) Graph based on MOFGalaxyNet" width="600">
 </p>
 
 
