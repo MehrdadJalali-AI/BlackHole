@@ -1,0 +1,9 @@
+python==3.9
+pytorch==2.4.0
+pandas
+numpy
+networkx
+scikit-learn
+rdkit>=2023.09.5,<2024.03
+psutil
+tqdm
