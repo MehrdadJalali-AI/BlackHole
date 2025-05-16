@@ -1,0 +1,2 @@
+Threshold,Method,Run,Accuracy,Confusion_Matrix,Cohen_Kappa,Num_Edges,Num_Nodes,Modularity
+0.95,random,4,0.4897959183673469,"[[9, 5, 1, 0], [3, 3, 2, 5], [1, 3, 3, 2], [0, 2, 1, 9]]",0.3125701459034793,125,243,0.9910790979908982

@@ -1,0 +1,2 @@
+Threshold,Method,Run,Accuracy,Confusion_Matrix,Cohen_Kappa,Num_Edges,Num_Nodes,Modularity
+0.95,blackhole,1,1.0,"[[1, 0], [0, 7]]",1.0,123,38,0.4095445849714871

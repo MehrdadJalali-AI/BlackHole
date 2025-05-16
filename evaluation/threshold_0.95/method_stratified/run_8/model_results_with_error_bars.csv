@@ -1,0 +1,2 @@
+Threshold,Method,Run,Accuracy,Confusion_Matrix,Cohen_Kappa,Num_Edges,Num_Nodes,Modularity
+0.95,stratified,8,0.3695652173913043,"[[4, 4, 4, 1], [4, 3, 5, 3], [3, 2, 3, 1], [0, 2, 0, 7]]",0.16206030150753759,118,228,0.9902323662570826
