@@ -1,14 +1,9 @@
-# Black Hole Strategy in Metal-Organic Framework (MOF) Graph
+# Black Hole Strategy for Graph Sparsification in Metal-Organic Framework Networks
 
 <div align="center">
     <img src="BH2.png" alt="Black Hole Strategy in Metal-Organic Framework (MOF) Graph based on MOFGalaxyNet" width="400">
 </div>
 
-This repository implements the **Bootstrapped Black Hole Strategy** for sparsifying Metal-Organic Framework (MOF) networks and evaluating them using a custom GraphSAGE model. It processes MOF data from `MOFGalaxyNet.csv` (829,300 edges) and `MOFCSD.csv` (12,561 nodes), generating features (Morgan fingerprints, pore diameters, metal types) and training a GraphSAGE model to classify MOFs by pore size (nonporous, small, medium, large). The goal is to achieve test accuracy >0.5, matching a previous version without edge weights.
-
-## Black Hole Strategy for Node Removal
-
-### Overview
 Blackhole (BH) is a graph sparsification strategy inspired by the concept of black holes in space — powerful regions that pull in nearby matter while leaving behind a simplified but structured system. Similarly, the BH algorithm "pulls in" essential connections in a network based on a gravity-like scoring mechanism, preserving influential edges and communities while pruning away weaker links. Unlike purely random methods, BH uses weighted edge importance and community detection (e.g., via the Louvain algorithm) to retain meaningful structure even under extreme pruning. The result is a significantly more stable and accurate graph for downstream learning tasks, especially in sparse regimes.
 
 
