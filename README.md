@@ -9,10 +9,8 @@ This repository implements the **Bootstrapped Black Hole Strategy** for sparsify
 ## Black Hole Strategy for Node Removal
 
 ### Overview
-This project provides a Python-based implementation of the **Black Hole Strategy** applied to community detection in networks. The main goal is to identify and remove nodes from a graph based on a gravity metric, which takes into account degree centrality, betweenness centrality, and edge weights. The method allows for the removal of a percentage of nodes with the lowest gravity in each community based on a specified threshold.
+Blackhole (BH) is a graph sparsification strategy inspired by the concept of black holes in space — powerful regions that pull in nearby matter while leaving behind a simplified but structured system. Similarly, the BH algorithm "pulls in" essential connections in a network based on a gravity-like scoring mechanism, preserving influential edges and communities while pruning away weaker links. Unlike purely random methods, BH uses weighted edge importance and community detection (e.g., via the Louvain algorithm) to retain meaningful structure even under extreme pruning. The result is a significantly more stable and accurate graph for downstream learning tasks, especially in sparse regimes.
 
-### Demo!
-Below is an example of the **Black Hole Strategy** in action, showing the graph as nodes are highlighted based on their gravity:
 
 <div align="center">
     <img src="Animated_BH_txt_shorter.gif" alt="Black Hole Strategy in Metal-Organic Framework (MOF) Graph based on MOFGalaxyNet" width="400">
