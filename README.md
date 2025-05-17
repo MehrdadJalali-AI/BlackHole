@@ -174,4 +174,4 @@ Contributions are welcome! Please submit issues or pull requests. Key areas for 
 MIT License. See [LICENSE](LICENSE) for details.
 
 ## Contact
-Maintainer: Mehrdad Jalali (<a href="mailto:mehrdad.jalali@kit.edu">mehrdad.jalali@kit.edu</a>)
+
