@@ -12,16 +12,14 @@ Blackhole (BH) is a graph sparsification strategy inspired by the concept of bla
 </div>
 
 ### How it Works
-1. **Community Detection**: The graph is divided into communities using the **Girvan-Newman algorithm**.
-2. **Gravity Calculation**: For each community, the gravity score for each node is computed using normalized degree centrality, betweenness centrality, and edge weights.
-3. **Stratified Sampling**: Nodes are categorized into bins according to their PLD (Pore Limiting Diameter) values, and a proportional number of nodes are selected from each bin to maintain the PLD distribution. (PLD, being a critical parameter in MOFs data, can be substituted or complemented by other properties depending on the application.)
-4. **Node Removal**: Nodes with the lowest gravity are removed based on a configurable **threshold**, representing the percentage of nodes to be removed in each community.
-5. **Results**: The remaining nodes are analyzed, and the reduced graph is visualized.
+**Black Hole (BH)** is a graph sparsification strategy inspired by the concept of black holes in space—gravitational centers that draw in surrounding matter while leaving behind a highly condensed structure. Analogously, the BH algorithm retains the most influential nodes and connections in a graph through a gravity-inspired scoring mechanism, resulting in a sparse yet structurally meaningful network.
+
+Unlike random pruning methods, BH incorporates **weighted edge importance** and **community structure** (via the **Louvain algorithm**) to guide sparsification. The result is a **much more stable and accurate graph representation**, particularly under high sparsity conditions. 
 
 ## MOFGalaxyNet and Black Hole Strategy
 **MOFGalaxyNet**: To access the related code for MOFGalaxyNet, visit the following GitHub repository:
 
-[MehrdadJalali-KIT/MOFGalaxyNet](https://github.com/MehrdadJalali-KIT/MOFGalaxyNet)
+[MehrdadJalali-AI/MOFGalaxyNet](https://github.com/MehrdadJalali-KIT/MOFGalaxyNet)
 
 ## Features
 - **Graph Sparsification**: Implements Black Hole and random sparsification methods with configurable thresholds (e.g., 0.9).
