@@ -21,12 +21,6 @@ Unlike random pruning methods, BH incorporates **weighted edge importance** and 
 
 [MehrdadJalali-AI/MOFGalaxyNet](https://github.com/MehrdadJalali-KIT/MOFGalaxyNet)
 
-## Features
-- **Graph Sparsification**: Implements Black Hole and random sparsification methods with configurable thresholds (e.g., 0.9).
-- **Feature Generation**: Combines Morgan fingerprints (1024D), pore diameters (3D), and metal one-hot encodings (4D) for 1031D feature vectors.
-- **GraphSAGE Model**: Custom implementation with edge weights (Black Hole: 1.0, Random: [0.8001, 1.0]) and class-weighted loss for imbalanced labels.
-- **Evaluation**: Computes accuracy, Cohen’s Kappa, confusion matrices, and modularity scores, saved in `evaluation/`.
-- **Checkpointing**: Resumes runs using `bh_evaluation_checkpoint.json`.
 
 ## Installation
 The project uses Python 3.9 and Conda. Follow these steps to set up the environment:
