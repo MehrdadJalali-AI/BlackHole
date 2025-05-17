@@ -13,7 +13,7 @@ from tqdm import tqdm
 from data_utils import load_edges_list, load_summary_data
 from bh_sparsification import generate_bootstrapped_blackhole_edges
 from sparsification_methods import sparsify_edges, save_sparsified_edges
-from graphsage_model import GraphSAGE, train, test
+from graphsage_model import GraphSAGE, GCN, GAT, train, test
 from experiment_manager import load_checkpoint, save_checkpoint, save_results, aggregate_results
 
 # Configure logging
@@ -34,6 +34,7 @@ if __name__ == "__main__":
     start_time = time.time()
     thresholds = [0.95, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.06, 0.03, 0]
     methods = ["blackhole", "random", "stratified"]
+    models = ["GraphSAGE", "GCN", "GAT"]
     num_runs = 10
     edges_list_filename = 'MOFGalaxyNet.csv'
     summary_data_filename = 'MOFCSD.csv'
@@ -119,7 +120,6 @@ if __name__ == "__main__":
         completed_evaluation = set(tuple(x) for x in checkpoint.get("completed_evaluation", []))
         results = checkpoint.get("results", [])
         logger.info(f"Loaded checkpoint: {len(completed_sparsification)} sparsifications, {len(completed_evaluation)} evaluations completed")
-        completed_evaluation = set()  # Force re-evaluation
 
         # Debug mode
         if debug_mode:
@@ -130,7 +130,7 @@ if __name__ == "__main__":
             runs = range(num_runs)
 
         # Total experiments
-        total_experiments = len(thresholds) * len(runs) * len(methods)
+        total_experiments = len(thresholds) * len(runs) * len(methods) * len(models)
         experiment_counter = 0
 
         # Main Loop
@@ -149,7 +149,7 @@ if __name__ == "__main__":
                             logger.info(f"Loaded BH edges: {len(bh_edges)} edges")
                         except Exception as e:
                             logger.error(f"Failed to load BH edges from {bh_edge_file}: {e}")
-                            pbar.update(len(methods))
+                            pbar.update(len(methods) * len(models))
                             continue
                     else:
                         logger.info(f"Generating BH edges for threshold {threshold}, run={run}")
@@ -158,7 +158,7 @@ if __name__ == "__main__":
                             bh_edges = generate_bootstrapped_blackhole_edges(edges_list, n_bootstrap_edges, threshold, run, summary_data_filename)
                             if bh_edges.empty:
                                 logger.warning(f"Empty BH edges for threshold {threshold}, run={run}. Skipping.")
-                                pbar.update(len(methods))
+                                pbar.update(len(methods) * len(models))
                                 continue
                             os.makedirs(os.path.dirname(bh_edge_file), exist_ok=True)
                             bh_edges.to_csv(bh_edge_file, index=False)
@@ -172,36 +172,26 @@ if __name__ == "__main__":
                             logger.info(f"Saved BH edges: {len(bh_edges)} edges")
                         except Exception as e:
                             logger.error(f"Failed to generate BH edges for threshold {threshold}, run={run}: {e}")
-                            pbar.update(len(methods))
+                            pbar.update(len(methods) * len(models))
                             continue
 
                     num_edges_bh = len(bh_edges)
                     target_num_nodes = len(set(nx.from_pandas_edgelist(bh_edges, 'source', 'target', 'weight').nodes()))
                     if target_num_nodes == 0:
                         logger.warning(f"No connected nodes for threshold {threshold}, run={run}. Skipping.")
-                        pbar.update(len(methods))
+                        pbar.update(len(methods) * len(models))
                         continue
                     logger.info(f"BH graph: {target_num_nodes} nodes, {num_edges_bh} edges")
 
                     for method in methods:
-                        experiment_counter += 1
-                        experiment_id = (threshold, method, run)
-                        progress = f"Experiment {experiment_counter}/{total_experiments} (threshold={threshold:.2f}, method={method}, run={run})"
-                        logger.info(f"Starting {progress}")
-
-                        if experiment_id in completed_evaluation:
-                            logger.info(f"Skipping completed experiment: {progress}")
-                            pbar.update(1)
-                            continue
-
                         edges_list_method = bh_edges.copy() if method == "blackhole" else edges_list
                         logger.info(f"Performing sparsification for method {method} at threshold {threshold}, run={run}")
                         try:
                             sparse_edges = sparsify_edges(edges_list_method, target_num_nodes, method, valid_nodes=valid_nodes, target_num_edges=num_edges_bh)
                             logger.info(f"Method: {method}, Input edges: {len(edges_list_method)}, Output edges: {len(sparse_edges)}")
                         except Exception as e:
-                            logger.error(f"Failed to sparsify edges for {progress}: {e}")
-                            pbar.update(1)
+                            logger.error(f"Failed to sparsify edges for method {method}, threshold {threshold}, run {run}: {e}")
+                            pbar.update(len(models))
                             continue
 
                         if method != "blackhole":
@@ -209,14 +199,14 @@ if __name__ == "__main__":
                                 save_sparsified_edges(sparse_edges, threshold, method, run)
                                 logger.info(f"Saved sparsified edges for method {method}")
                             except Exception as e:
-                                logger.error(f"Failed to save sparsified edges for {progress}: {e}")
-                                pbar.update(1)
+                                logger.error(f"Failed to save sparsified edges for method {method}, threshold {threshold}, run {run}: {e}")
+                                pbar.update(len(models))
                                 continue
 
                         graph = nx.from_pandas_edgelist(sparse_edges, 'source', 'target', 'weight')
                         if graph.number_of_edges() == 0:
-                            logger.warning(f"Empty graph for {progress}. Skipping.")
-                            pbar.update(1)
+                            logger.warning(f"Empty graph for method {method}, threshold {threshold}, run {run}. Skipping.")
+                            pbar.update(len(models))
                             continue
 
                         num_edges = graph.number_of_edges()
@@ -228,8 +218,13 @@ if __name__ == "__main__":
                         common_nodes = graph_nodes & summary_nodes
                         logger.info(f"Graph nodes: {len(graph_nodes)}, Common with summary_data: {len(common_nodes)}")
 
-                        # Compute modularity
+                        # Compute modularity and additional metrics
                         modularity_score = 0.0
+                        num_communities = 0
+                        avg_community_size = 0.0
+                        avg_clustering = 0.0
+                        graph_density = 0.0
+                        avg_degree = 0.0
                         communities = []
                         try:
                             if method == "blackhole":
@@ -251,36 +246,55 @@ if __name__ == "__main__":
                                         communities = [c for c in communities if c]
                                         partition_nodes = set().union(*communities)
                                         if partition_nodes != graph_nodes or any(len(c) == 0 for c in communities):
-                                            logger.warning(f"Invalid BH partition for {progress}. Falling back to Louvain.")
+                                            logger.warning(f"Invalid BH partition for method {method}, threshold {threshold}, run {run}. Falling back to Louvain.")
                                             communities = nx_comm.louvain_communities(graph)
                                         modularity_score = modularity(graph, communities, weight='weight')
                             else:
                                 communities = nx_comm.louvain_communities(graph)
                                 modularity_score = modularity(graph, communities, weight='weight')
-                            logger.info(f"Modularity for {progress}: {modularity_score:.4f}")
+                            
+                            # Calculate additional metrics
+                            num_communities = len(communities)
+                            avg_community_size = sum(len(c) for c in communities) / num_communities if num_communities > 0 else 0.0
+                            avg_clustering = nx.average_clustering(graph, weight='weight')
+                            graph_density = nx.density(graph) if num_nodes > 1 else 0.0
+                            avg_degree = (2 * num_edges) / num_nodes if num_nodes > 0 else 0.0
+                            
+                            logger.info(f"Metrics for method {method}, threshold {threshold}, run {run}: Modularity={modularity_score:.4f}, "
+                                       f"Num_Communities={num_communities}, Avg_Community_Size={avg_community_size:.2f}, "
+                                       f"Avg_Clustering={avg_clustering:.4f}, Graph_Density={graph_density:.4f}, "
+                                       f"Avg_Degree={avg_degree:.2f}")
                         except Exception as e:
-                            logger.error(f"Failed to compute modularity for {progress}: {e}")
+                            logger.error(f"Failed to compute metrics for method {method}, threshold {threshold}, run {run}: {e}")
                             communities = nx_comm.louvain_communities(graph)
                             modularity_score = modularity(graph, communities, weight='weight')
-                            logger.info(f"Fallback modularity for {progress}: {modularity_score:.4f}")
+                            num_communities = len(communities)
+                            avg_community_size = sum(len(c) for c in communities) / num_communities if num_communities > 0 else 0.0
+                            avg_clustering = nx.average_clustering(graph, weight='weight')
+                            graph_density = nx.density(graph) if num_nodes > 1 else 0.0
+                            avg_degree = (2 * num_edges) / num_nodes if num_nodes > 0 else 0.0
+                            logger.info(f"Fallback metrics for method {method}, threshold {threshold}, run {run}: Modularity={modularity_score:.4f}, "
+                                       f"Num_Communities={num_communities}, Avg_Community_Size={avg_community_size:.2f}, "
+                                       f"Avg_Clustering={avg_clustering:.4f}, Graph_Density={graph_density:.4f}, "
+                                       f"Avg_Degree={avg_degree:.2f}")
 
                         # Prepare GraphSAGE data
                         node_to_index = {node: idx for idx, node in enumerate(graph_nodes)}
                         logger.info(f"Node to index mapping: {len(node_to_index)} nodes")
                         try:
                             weights = np.array([graph[src][dst]['weight'] for src, dst in graph.edges if src in node_to_index and dst in node_to_index])
-                            logger.info(f"Valid edges for GraphSAGE: {weights.size}, Weight range: [{weights.min():.4f}, {weights.max():.4f}]")
+                            logger.info(f"Valid edges for GNN: {weights.size}, Weight range: [{weights.min():.4f}, {weights.max():.4f}]")
                             if weights.size == 0:
-                                logger.warning(f"No valid edges for {progress}. Skipping.")
-                                pbar.update(1)
+                                logger.warning(f"No valid edges for method {method}, threshold {threshold}, run {run}. Skipping.")
+                                pbar.update(len(models))
                                 continue
                             if use_edge_weights and (weights.min() < 0 or weights.max() > 1):
-                                logger.info(f"Normalizing edge weights for {progress}: min={weights.min():.4f}, max={weights.max():.4f}")
+                                logger.info(f"Normalizing edge weights for method {method}, threshold {threshold}, run {run}: min={weights.min():.4f}, max={weights.max():.4f}")
                                 weights = (weights - weights.min()) / (weights.max() - weights.min() + 1e-8)
                             edge_weight = torch.tensor(weights, dtype=torch.float) if use_edge_weights else None
                         except Exception as e:
-                            logger.error(f"Failed to process edge weights for {progress}: {e}")
-                            pbar.update(1)
+                            logger.error(f"Failed to process edge weights for method {method}, threshold {threshold}, run {run}: {e}")
+                            pbar.update(len(models))
                             continue
 
                         edge_index = torch.tensor(
@@ -294,12 +308,12 @@ if __name__ == "__main__":
                         y_subset = y[graph_indices]
                         train_mask_subset = torch.tensor([i for i, idx in enumerate(graph_indices) if idx in train_indices], dtype=torch.long)
                         test_mask_subset = torch.tensor([i for i, idx in enumerate(graph_indices) if idx in test_indices], dtype=torch.long)
-                        logger.info(f"GraphSAGE data: {len(graph_indices)} nodes, train_mask: {len(train_mask_subset)}, test_mask: {len(test_mask_subset)}")
+                        logger.info(f"GNN data: {len(graph_indices)} nodes, train_mask: {len(train_mask_subset)}, test_mask: {len(test_mask_subset)}")
                         logger.info(f"Label distribution in graph: {dict(pd.Series(y_subset.numpy()).value_counts())}")
 
                         # Fallback if test_mask is empty
                         if test_mask_subset.size(0) == 0:
-                            logger.warning(f"Empty test mask for {progress}, using 20% of graph nodes for testing")
+                            logger.warning(f"Empty test mask for method {method}, threshold {threshold}, run {run}, using 20% of graph nodes for testing")
                             train_idx, test_idx = train_test_split(np.arange(len(graph_indices)), test_size=0.2, random_state=42, stratify=y_subset.numpy())
                             train_mask_subset = torch.tensor(train_idx, dtype=torch.long)
                             test_mask_subset = torch.tensor(test_idx, dtype=torch.long)
@@ -314,52 +328,77 @@ if __name__ == "__main__":
                         data.train_mask = train_mask_subset
                         data.test_mask = test_mask_subset
 
-                        # Create evaluation folder
-                        eval_dir = f"evaluation/threshold_{threshold:.2f}/method_{method}/run_{run}"
-                        os.makedirs(eval_dir, exist_ok=True)
+                        for model_name in models:
+                            experiment_counter += 1
+                            experiment_id = (threshold, method, run, model_name)
+                            progress = f"Experiment {experiment_counter}/{total_experiments} (threshold={threshold:.2f}, method={method}, run={run}, model={model_name})"
+                            logger.info(f"Starting {progress}")
 
-                        # Train and evaluate GraphSAGE
-                        result = {
-                            "Threshold": threshold,
-                            "Method": method,
-                            "Run": run,
-                            "Accuracy": 0.0,
-                            "Confusion_Matrix": [],
-                            "Cohen_Kappa": 0.0,
-                            "Num_Edges": num_edges,
-                            "Num_Nodes": num_nodes,
-                            "Modularity": modularity_score
-                        }
-                        try:
-                            logger.info(f"Training GraphSAGE for {progress}")
-                            model = GraphSAGE(dim_in=x.shape[1], dim_h=128, dim_out=len(set(labels)))
-                            model = train(model, data, class_weights=class_weights)
-                            acc, cm, kappa = test(model, data)
-                            result.update({
-                                "Accuracy": acc,
-                                "Confusion_Matrix": cm.tolist(),
-                                "Cohen_Kappa": kappa
-                            })
-                            logger.info(f"Completed {progress}: Accuracy={acc:.4f}, Cohen_Kappa={kappa:.4f}, Modularity={modularity_score:.4f}")
-                        except Exception as e:
-                            logger.error(f"Error in experiment for {progress}: {e}")
+                            if experiment_id in completed_evaluation:
+                                logger.info(f"Skipping completed experiment: {progress}")
+                                pbar.update(1)
+                                continue
+
+                            # Create evaluation folder
+                            eval_dir = f"evaluation/threshold_{threshold:.2f}/method_{method}/run_{run}/model_{model_name}"
+                            os.makedirs(eval_dir, exist_ok=True)
+
+                            # Train and evaluate model
+                            result = {
+                                "Threshold": threshold,
+                                "Method": method,
+                                "Run": run,
+                                "Model": model_name,
+                                "Accuracy": 0.0,
+                                "Confusion_Matrix": [],
+                                "Cohen_Kappa": 0.0,
+                                "Num_Edges": num_edges,
+                                "Num_Nodes": num_nodes,
+                                "Modularity": modularity_score,
+                                "Num_Communities": num_communities,
+                                "Avg_Community_Size": avg_community_size,
+                                "Avg_Clustering": avg_clustering,
+                                "Graph_Density": graph_density,
+                                "Avg_Degree": avg_degree
+                            }
+                            try:
+                                logger.info(f"Training {model_name} for {progress}")
+                                if model_name == "GraphSAGE":
+                                    model = GraphSAGE(dim_in=x.shape[1], dim_h=128, dim_out=len(set(labels)))
+                                elif model_name == "GCN":
+                                    model = GCN(dim_in=x.shape[1], dim_h=128, dim_out=len(set(labels)))
+                                elif model_name == "GAT":
+                                    model = GAT(dim_in=x.shape[1], dim_h=16, dim_out=len(set(labels)), heads=8)
+                                model = train(model, data, class_weights=class_weights)
+                                acc, cm, kappa = test(model, data)
+                                result.update({
+                                    "Accuracy": acc,
+                                    "Confusion_Matrix": cm.tolist(),
+                                    "Cohen_Kappa": kappa
+                                })
+                                logger.info(f"Completed {progress}: Accuracy={acc:.4f}, Cohen_Kappa={kappa:.4f}, "
+                                           f"Modularity={modularity_score:.4f}, Num_Communities={num_communities}, "
+                                           f"Avg_Community_Size={avg_community_size:.2f}, Avg_Clustering={avg_clustering:.4f}, "
+                                           f"Graph_Density={graph_density:.4f}, Avg_Degree={avg_degree:.2f}")
+                            except Exception as e:
+                                logger.error(f"Error in experiment for {progress}: {e}")
+                                results.append(result)
+                                save_results(results, threshold, method, run)
+                                logger.info(f"Saved partial results to {eval_dir}")
+                                pbar.update(1)
+                                continue
+
                             results.append(result)
                             save_results(results, threshold, method, run)
-                            logger.info(f"Saved partial results to {eval_dir}")
+                            logger.info(f"Saved results to {eval_dir}")
+                            completed_evaluation.add(experiment_id)
+                            checkpoint = {
+                                "completed_sparsification": list(completed_sparsification),
+                                "completed_evaluation": list(completed_evaluation),
+                                "results": results
+                            }
+                            save_checkpoint(checkpoint_file, checkpoint)
                             pbar.update(1)
-                            continue
-
-                        results.append(result)
-                        save_results(results, threshold, method, run)
-                        logger.info(f"Saved results to {eval_dir}")
-                        completed_evaluation.add(experiment_id)
-                        checkpoint = {
-                            "completed_sparsification": list(completed_sparsification),
-                            "completed_evaluation": list(completed_evaluation),
-                            "results": results
-                        }
-                        save_checkpoint(checkpoint_file, checkpoint)
-                        pbar.update(1)
 
         # Aggregate results
         try:

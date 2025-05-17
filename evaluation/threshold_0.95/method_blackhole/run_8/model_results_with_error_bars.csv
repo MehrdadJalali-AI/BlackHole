@@ -1,2 +1,4 @@
-Threshold,Method,Run,Accuracy,Confusion_Matrix,Cohen_Kappa,Num_Edges,Num_Nodes,Modularity
-0.95,blackhole,8,1.0,"[[1, 0], [0, 6]]",1.0,118,31,0.36483769098631624
+Threshold,Method,Run,Model,Accuracy,Confusion_Matrix,Cohen_Kappa,Num_Edges,Num_Nodes,Modularity,Num_Communities,Avg_Community_Size,Avg_Clustering,Graph_Density,Avg_Degree
+0.95,blackhole,8,GraphSAGE,1.0,"[[1, 0], [0, 6]]",1.0,115,32,0.4255954637834554,5,6.4,0.6463564142820872,0.2318548387096774,7.1875
+0.95,blackhole,8,GCN,1.0,"[[1, 0], [0, 6]]",1.0,115,32,0.4255954637834554,5,6.4,0.6463564142820872,0.2318548387096774,7.1875
+0.95,blackhole,8,GAT,1.0,"[[1, 0], [0, 6]]",1.0,115,32,0.4255954637834554,5,6.4,0.6463564142820872,0.2318548387096774,7.1875

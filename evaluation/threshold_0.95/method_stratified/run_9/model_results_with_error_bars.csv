@@ -1,2 +1,4 @@
-Threshold,Method,Run,Accuracy,Confusion_Matrix,Cohen_Kappa,Num_Edges,Num_Nodes,Modularity
-0.95,stratified,9,0.34782608695652173,"[[4, 4, 4, 1], [4, 3, 5, 3], [3, 2, 3, 1], [0, 2, 1, 6]]",0.13316582914572872,118,228,0.9902323662570826
+Threshold,Method,Run,Model,Accuracy,Confusion_Matrix,Cohen_Kappa,Num_Edges,Num_Nodes,Modularity,Num_Communities,Avg_Community_Size,Avg_Clustering,Graph_Density,Avg_Degree
+0.95,stratified,9,GraphSAGE,0.4,"[[6, 2, 2, 2], [4, 4, 1, 2], [0, 4, 1, 1], [0, 3, 3, 5]]",0.189873417721519,110,198,0.9853117994374134,88,2.25,0.0,0.0056401579244218835,1.1111111111111112
+0.95,stratified,9,GCN,0.425,"[[6, 3, 1, 2], [5, 3, 2, 1], [0, 2, 0, 4], [0, 2, 1, 8]]",0.21300256629597947,110,198,0.9853117994374134,88,2.25,0.0,0.0056401579244218835,1.1111111111111112
+0.95,stratified,9,GAT,0.525,"[[7, 3, 1, 1], [4, 5, 1, 1], [0, 3, 0, 3], [0, 1, 1, 9]]",0.3470790378006873,110,198,0.9853117994374134,88,2.25,0.0,0.0056401579244218835,1.1111111111111112

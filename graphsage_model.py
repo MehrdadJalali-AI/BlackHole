@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.metrics import confusion_matrix, cohen_kappa_score
 import logging
+from torch_geometric.nn import GCNConv, GATConv
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,35 @@ class GraphSAGE(nn.Module):
         # Layer 2
         h = torch.sparse.mm(norm_adj, h)
         h = self.linear2(h)
+        return F.log_softmax(h, dim=-1)
+
+class GCN(nn.Module):
+    def __init__(self, dim_in, dim_h, dim_out):
+        super(GCN, self).__init__()
+        self.conv1 = GCNConv(dim_in, dim_h)
+        self.conv2 = GCNConv(dim_h, dim_out)
+        self.dim_h = dim_h
+
+    def forward(self, x, edge_index, edge_weight=None):
+        h = self.conv1(x, edge_index, edge_weight)
+        h = F.relu(h)
+        h = F.dropout(h, p=0.2, training=self.training)
+        h = self.conv2(h, edge_index, edge_weight)
+        return F.log_softmax(h, dim=-1)
+
+class GAT(nn.Module):
+    def __init__(self, dim_in, dim_h, dim_out, heads=8):
+        super(GAT, self).__init__()
+        self.conv1 = GATConv(dim_in, dim_h, heads=heads, dropout=0.2)
+        self.conv2 = GATConv(dim_h * heads, dim_out, heads=1, concat=False, dropout=0.2)
+        self.dim_h = dim_h
+        self.heads = heads
+
+    def forward(self, x, edge_index, edge_weight=None):
+        h = self.conv1(x, edge_index)
+        h = F.relu(h)
+        h = F.dropout(h, p=0.2, training=self.training)
+        h = self.conv2(h, edge_index)
         return F.log_softmax(h, dim=-1)
 
 def train(model, data, epochs=200, lr=0.005, class_weights=None):

@@ -30,9 +30,7 @@ def save_results(results, threshold, method, run):
         os.makedirs(eval_dir, exist_ok=True)
         output_file = os.path.join(eval_dir, "model_results_with_error_bars.csv")
         df = pd.DataFrame(results)
-        df = df[df['Threshold'] == threshold]
-        df = df[df['Method'] == method]
-        df = df[df['Run'] == run]
+        df = df[(df['Threshold'] == threshold) & (df['Method'] == method) & (df['Run'] == run)]
         if df.empty:
             logger.warning(f"No results to save for threshold={threshold}, method={method}, run={run}")
         else:
@@ -50,8 +48,9 @@ def aggregate_results(results, num_runs):
         if df.empty:
             logger.warning("No results to aggregate")
             return
-        metrics = ['Accuracy', 'Cohen_Kappa', 'Modularity']
-        agg_results = df.groupby(['Threshold', 'Method'])[metrics].agg(['mean', 'std']).reset_index()
+        metrics = ['Accuracy', 'Cohen_Kappa', 'Modularity', 'Num_Communities', 'Avg_Community_Size', 
+                  'Avg_Clustering', 'Graph_Density', 'Avg_Degree']
+        agg_results = df.groupby(['Threshold', 'Method', 'Model'])[metrics].agg(['mean', 'std']).reset_index()
         agg_results.columns = ['_'.join(col).strip() if col[1] else col[0] for col in agg_results.columns]
         os.makedirs("evaluation_results", exist_ok=True)
         output_file = "evaluation_results/model_results_with_error_bars.csv"
